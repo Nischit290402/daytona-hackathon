@@ -90,17 +90,18 @@ class CoderAgent:
             '        "User-Agent": "MCP-Forge-Autonomous-Agent/2.0",',
             '        "Accept": "application/vnd.github+json, application/json, */*",',
             '    }',
-            f'    if AUTH_TOKEN and "{bp.auth.auth_type}" != "none":',
         ]
 
-        if bp.auth.auth_type == "bearer":
-            lines.append('        headers["Authorization"] = f"Bearer {AUTH_TOKEN}"')
-        elif bp.auth.auth_type == "header":
-            lines.append(f'        headers["{bp.auth.header_name}"] = AUTH_TOKEN')
-        elif bp.auth.auth_type == "basic":
-            lines.append('        headers["Authorization"] = f"Basic {AUTH_TOKEN}"')
-        elif bp.auth.auth_type == "query":
-            pass
+        if bp.auth.auth_type != "none":
+            lines.append('    if AUTH_TOKEN:')
+            if bp.auth.auth_type == "bearer":
+                lines.append('        headers["Authorization"] = f"Bearer {AUTH_TOKEN}"')
+            elif bp.auth.auth_type == "header":
+                lines.append(f'        headers["{bp.auth.header_name}"] = AUTH_TOKEN')
+            elif bp.auth.auth_type == "basic":
+                lines.append('        headers["Authorization"] = f"Basic {AUTH_TOKEN}"')
+            elif bp.auth.auth_type == "query":
+                pass
 
         lines.extend([
             '    return headers',
