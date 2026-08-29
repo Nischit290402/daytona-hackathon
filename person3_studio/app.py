@@ -34,8 +34,13 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     /* Global Dark Theme Overrides */
-    html, body, [class*="st-"] {
+    html, body, .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* Preserve Streamlit icon fonts */
+    [data-testid="stIconMaterial"], [class*="material-symbols"], [class*="material-icons"], .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
     }
     
     .stApp {
@@ -262,14 +267,14 @@ with col_left:
         default="openapi_json"
     ) or "openapi_json"
 
-    with st.expander("📝 API Specification Code", expanded=True):
-        spec_content_str = st.text_area(
-            "Spec Payload",
-            value=initial_spec,
-            height=200,
-            label_visibility="collapsed",
-            placeholder="Paste OpenAPI / Swagger JSON or YAML here..."
-        )
+    st.markdown('<div style="font-size: 0.82rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 6px 0;">📝 Raw Specification Payload</div>', unsafe_allow_html=True)
+    spec_content_str = st.text_area(
+        "Spec Payload",
+        value=initial_spec,
+        height=200,
+        label_visibility="collapsed",
+        placeholder="Paste OpenAPI / Swagger JSON or YAML here..."
+    )
 
     st.markdown('<div class="card-title" style="margin-top: 1rem;">🔐 2. Configuration & Sandbox Auth</div>', unsafe_allow_html=True)
     
