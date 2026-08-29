@@ -6,9 +6,31 @@ Leaves the Daytona sandbox active after evaluation for follow-up agents.
 """
 import json
 import logging
+import sys
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+def _safe_print(msg: str = ""):
+    try:
+        print(msg)
+    except Exception:
+        try:
+            sys.stdout.buffer.write((str(msg) + "\n").encode("utf-8", errors="replace"))
+            sys.stdout.buffer.flush()
+        except Exception:
+            pass
 
 from .schemas import (
     DiagnosticReport,
@@ -113,7 +135,7 @@ class TesterAgent:
         finally:
             # ── Step 4: Retain sandbox for the next agent / inspection ──
             logger.info(f"Keeping sandbox active after testing: {workspace_id}")
-            print(f"\n🟢 Sandbox [{workspace_id}] retained after testing.\n")
+            _safe_print(f"\n[OK] Sandbox [{workspace_id}] retained after testing.\n")
 
         return output
 
@@ -130,22 +152,22 @@ class TesterAgent:
         total  = len(results)
         passed = sum(1 for r in results if r.passed)
 
-        print("\n" + "=" * 60)
-        print("  ✅ ALL TESTS PASSED")
-        print("=" * 60)
-        print(f"  Project      : {project_name}")
-        print(f"  Workspace ID : {workspace_id}")
-        print(f"  Tests Passed : {passed}/{total}")
-        print("-" * 60)
+        _safe_print("\n" + "=" * 60)
+        _safe_print("  [SUCCESS] ALL TESTS PASSED")
+        _safe_print("=" * 60)
+        _safe_print(f"  Project      : {project_name}")
+        _safe_print(f"  Workspace ID : {workspace_id}")
+        _safe_print(f"  Tests Passed : {passed}/{total}")
+        _safe_print("-" * 60)
         for r in results:
-            icon = "✅" if r.passed else "❌"
-            print(f"  {icon} [{r.exit_code}] {r.command}  ({r.duration_ms}ms)")
-        print("=" * 60)
-        print("\n📤 Sending verified payload to Agent 5 (Security Agent)...")
-        print("   [Agent 5 not yet implemented — stub handoff below]\n")
-        print("📁 Developer bundle paths available to Agent 5:")
+            icon = "[PASS]" if r.passed else "[FAIL]"
+            _safe_print(f"  {icon} [{r.exit_code}] {r.command}  ({r.duration_ms}ms)")
+        _safe_print("=" * 60)
+        _safe_print("\n[HANDOFF] Sending verified payload to Agent 5 (Security Agent)...")
+        _safe_print("   [Agent 5 not yet implemented — stub handoff below]\n")
+        _safe_print("Developer bundle paths available to Agent 5:")
         for file_path in deployer_output.deployed_files:
-            print(f"   - {file_path}")
+            _safe_print(f"   - {file_path}")
 
         handoff_payload = {
             "project_name"   : project_name,
@@ -248,25 +270,25 @@ class TesterAgent:
         feedback_path = self._save_feedback_report(feedback)
 
         # ── Print diagnostic summary ──
-        print("\n" + "=" * 60)
-        print("  ❌ TESTS FAILED — Diagnostic Report Generated")
-        print("=" * 60)
-        print(f"  Project        : {project_name}")
-        print(f"  Workspace ID   : {workspace_id}")
-        print(f"  Tests          : {passed} passed / {failed} failed / {total} total")
-        print(f"  Root Cause     : {root_cause}")
-        print(f"  Failure Locs   : {', '.join(failure_locations)}")
-        print(f"  Suggestions    ({len(suggestions)}):")
+        _safe_print("\n" + "=" * 60)
+        _safe_print("  [FAIL] TESTS FAILED — Diagnostic Report Generated")
+        _safe_print("=" * 60)
+        _safe_print(f"  Project        : {project_name}")
+        _safe_print(f"  Workspace ID   : {workspace_id}")
+        _safe_print(f"  Tests          : {passed} passed / {failed} failed / {total} total")
+        _safe_print(f"  Root Cause     : {root_cause}")
+        _safe_print(f"  Failure Locs   : {', '.join(failure_locations)}")
+        _safe_print(f"  Suggestions    ({len(suggestions)}):")
         for i, s in enumerate(suggestions, 1):
-            print(f"    {i}. {s}")
-        print(f"\n  📄 Report saved → {report_path}")
-        print("=" * 60)
+            _safe_print(f"    {i}. {s}")
+        _safe_print(f"\n  Report saved → {report_path}")
+        _safe_print("=" * 60)
 
         # ── Pretty-print shared feedback JSON for Planner Agent ──
-        print("\n📤 Sending feedback report to Agent 1 (Planner Agent)...")
-        print("   [Agent 1 not yet implemented — feedback JSON below]\n")
-        print(json.dumps(feedback.model_dump(), indent=2, default=str))
-        print()
+        _safe_print("\n[FEEDBACK] Sending feedback report to Agent 1 (Planner Agent)...")
+        _safe_print("   [Agent 1 not yet implemented — feedback JSON below]\n")
+        _safe_print(json.dumps(feedback.model_dump(), indent=2, default=str))
+        _safe_print()
 
         logger.warning(
             f"[→ Agent 1 (Planner)] DiagnosticReport ID={report.report_id} "

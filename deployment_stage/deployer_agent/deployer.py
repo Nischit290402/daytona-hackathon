@@ -1,6 +1,18 @@
 import os
+import sys
 import logging
 from typing import Optional
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 from .schemas import CoderOutput, DeployerOutput
 from .script_generator import SetupScriptGenerator
 from .sandbox_manager import BaseSandboxManager, get_sandbox_manager
