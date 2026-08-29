@@ -284,12 +284,12 @@ with col_left:
         auth_type = st.selectbox("Auth Type", ["bearer", "none", "header", "query", "basic"], index=["bearer", "none", "header", "query", "basic"].index(initial_auth))
     with c_s2:
         base_url = st.text_input("Base URL Override", value=initial_base, placeholder="https://api.github.com")
-        env_var_name = st.text_input("Token Env Var", value=initial_env, placeholder="GITHUB_TOKEN")
+        env_var_name = st.text_input("Env Variable Name", value=initial_env, placeholder="e.g. GITHUB_TOKEN")
 
     test_token = st.text_input(
-        "Live Sandbox Token (Optional)",
+        "Secret Token / API Key (Optional)",
         type="password",
-        placeholder="Paste token for live Daytona sandbox verification..."
+        placeholder="e.g. ghp_xxxx (Injected into Daytona Sandbox for live testing)..."
     )
 
     submit_btn = st.button("🚀 Compile, Deploy & Verify in Daytona", type="primary", use_container_width=True)
@@ -312,6 +312,16 @@ with col_right:
         if not spec_content_str.strip():
             st.error("API Specification content is required.")
         else:
+            # Intelligent fallback if user accidentally pastes token in variable name field
+            sanitized_env_var = env_var_name.strip() if env_var_name else ""
+            actual_test_token = test_token.strip() if test_token else ""
+            if sanitized_env_var.startswith(("ghp_", "sk-", "Bearer", "ey")) or len(sanitized_env_var) > 25:
+                if not actual_test_token:
+                    actual_test_token = sanitized_env_var
+                sanitized_env_var = "GITHUB_TOKEN" if "github" in (service_name or "").lower() else "API_KEY"
+            elif not sanitized_env_var:
+                sanitized_env_var = "GITHUB_TOKEN" if "github" in (service_name or "").lower() else "API_KEY"
+
             raw_payload = {
                 "spec_format": spec_format,
                 "spec_content": spec_content_str,
@@ -321,8 +331,8 @@ with col_right:
                     "auth_type": auth_type,
                     "header_name": "Authorization",
                     "query_param_name": None,
-                    "env_var_name": env_var_name,
-                    "test_token": test_token if test_token else None
+                    "env_var_name": sanitized_env_var,
+                    "test_token": actual_test_token if actual_test_token else None
                 }
             }
 

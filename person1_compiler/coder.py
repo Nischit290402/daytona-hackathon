@@ -370,13 +370,17 @@ if __name__ == "__main__":
 
     @staticmethod
     def _generate_client_config(bp: PlannedMCPBlueprint) -> Dict[str, Any]:
+        env_var = bp.auth.env_var_name or "API_KEY"
+        if env_var.startswith(("ghp_", "sk-", "Bearer", "ey")) or len(env_var) > 25 or not env_var.isidentifier():
+            env_var = "GITHUB_TOKEN" if "github" in bp.service_name.lower() else "API_KEY"
+
         return {
             "mcpServers": {
                 bp.service_name.lower(): {
                     "command": "python",
                     "args": ["server.py"],
                     "env": {
-                        bp.auth.env_var_name: f"YOUR_{bp.auth.env_var_name}_HERE",
+                        env_var: f"YOUR_{env_var}_HERE",
                         "API_BASE_URL": bp.base_url,
                     }
                 }
