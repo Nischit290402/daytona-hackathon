@@ -1,4 +1,4 @@
-# ⚡ MCP-Forge
+# ⚡ MCP-X
 ### The Autonomous, Daytona-Powered MCP & Agent Tooling Compiler
 
 > **Built for Daytona HackSprint Singapore (August 2026)**  
