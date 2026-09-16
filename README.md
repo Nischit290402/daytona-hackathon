@@ -195,3 +195,11 @@ python orchestrator.py
 - **👤 Person 2 (Daytona Cloud Runtime):** Daytona Deployer Agent (Agent 3), Daytona Tester Agent (Agent 4), Sandbox Workspace Manager (`deployment_stage/`).
 - **👤 Person 3 (Web Studio UI):** Streamlit Web Studio, Showcase Presets, Live Multi-Agent Event Streamer (`person3_studio/`).
 - **🔄 Master Orchestrator:** End-to-end pipeline coordination and feedback routing (`orchestrator.py`).
+
+### 🧩 My Contribution
+
+I owned **Person 1 (Compiler & Self-Healing Core)** — the Planner and Coder agents, the self-healing patch loop, and the benchmark evaluator in `person1_compiler/` — and wrote the **Master Orchestrator** (`orchestrator.py`) that drives the end-to-end pipeline and routes feedback between agents. I also contributed the Deployer and Tester agent logic in `deployment_stage/` that bridges compiled servers into Daytona sandboxes for verification.
+
+### 📚 What I Learned
+
+Building the self-healing loop — parsing a sandbox's failure output and turning it into a targeted regeneration prompt for the Coder agent, rather than a blind retry — was the most interesting engineering problem here. The broader lesson from shipping this in a hackathon sprint: a high code-to-docs ratio and using the sponsor's platform as the persistent runtime (not just a build step) matter as much to reviewers as the architecture itself — both are reflected in the production-evolution direction the project has since taken.
